@@ -17,7 +17,7 @@
     "php": ">=5.4",
     "joomla/database": "~1.0",
     "joomla/filesystem": "~1.0",
-    "joomla/form": "~1.0",
+    "joomla/form": "2.*@dev",
     "joomla/language": "~1.0",
     "joomla/model": "~1.0",
     "joomla/registry": "~1.0",
