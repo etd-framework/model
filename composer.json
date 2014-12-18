@@ -1,0 +1,34 @@
+{
+  "name": "etdsolutions/model",
+  "type": "etd-package",
+  "description": "Package Model du Framework ETD",
+  "homepage": "https://github.com/etd-framework/model",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Jean-Baptiste Alleaume",
+      "email": "jb.alleaume@etd-solutions.com",
+      "homepage": "http://alleau.me",
+      "role": "Manager"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "joomla/database": "~1.0",
+    "joomla/filesystem": "~1.0",
+    "joomla/form": "~1.0",
+    "joomla/language": "~1.0",
+    "joomla/model": "~1.0",
+    "joomla/registry": "~1.0",
+    "etdsolutions/application": "dev-master",
+    "etdsolutions/form": "dev-master",
+    "etdsolutions/pagination": "dev-master",
+    "etdsolutions/table": "dev-master",
+    "etdsolutions/user": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "EtdSolutions\\Model\\": "src/"
+    }
+  }
+}
