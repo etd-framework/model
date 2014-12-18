@@ -20,11 +20,11 @@
     "joomla/language": "~1.0",
     "joomla/model": "~1.0",
     "joomla/registry": "~1.0",
-    "etdsolutions/application": "dev-master",
-    "etdsolutions/form": "dev-master",
-    "etdsolutions/pagination": "dev-master",
-    "etdsolutions/table": "dev-master",
-    "etdsolutions/user": "dev-master"
+    "etdsolutions/application": "@dev",
+    "etdsolutions/form": "@dev",
+    "etdsolutions/pagination": "@dev",
+    "etdsolutions/table": "@dev",
+    "etdsolutions/user": "@dev"
   },
   "autoload": {
     "psr-4": {
