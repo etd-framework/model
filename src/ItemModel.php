@@ -529,11 +529,11 @@ abstract class ItemModel extends Model {
         FormHelper::addFormPath(JPATH_FORMS);
 
         // On ajoute le chemin vers les types de champs.
-        $path = Path::clean(JPATH_LIBRARIES . $app->get('app_namespace') . "/Form/Field");
+        $path = Path::clean(JPATH_APP . "/Form/Field");
         FormHelper::addFieldPath($path);
 
         // On ajoute le chemin vers les règles.
-        $path = Path::clean(JPATH_LIBRARIES . $app->get('app_namespace') . "/Form/Rule");
+        $path = Path::clean(JPATH_APP . "/Form/Rule");
         FormHelper::addRulePath($path);
 
     }
