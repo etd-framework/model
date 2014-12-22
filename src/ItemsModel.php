@@ -200,6 +200,7 @@ abstract class ItemsModel extends Model {
             $name = $this->getName();
         }
 
+        $app = Web::getInstance();
         $name = "filters_" . strtolower($name);
 
         // On compile un identifiant de cache.
@@ -212,13 +213,8 @@ abstract class ItemsModel extends Model {
         // On instancie le formulaire.
         $form = new Form($name);
 
-        // On ajoute le chemin vers les fichiers XML.
+        // On ajoute le chemin vers les fichiers XML des formulaires.
         FormHelper::addFormPath(JPATH_FORMS);
-
-        // On ajoute le chemin vers les types de champs.
-        $app = Web::getInstance();
-        $path = Path::clean(JPATH_APP . "/Form/Field");
-        FormHelper::addFieldPath($path);
 
         // On charge les champs depuis le XML.
         if (!$form->loadFile($name)) {
