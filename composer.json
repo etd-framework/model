@@ -18,7 +18,7 @@
     "joomla/database": "~1.0",
     "joomla/filesystem": "~1.0",
     "joomla/form": "2.*@dev",
-    "joomla/language": "~1.0",
+    "joomla/language": "2.*@dev",
     "joomla/model": "~1.0",
     "joomla/registry": "~1.0",
     "etdsolutions/application": "@dev",
