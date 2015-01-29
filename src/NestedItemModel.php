@@ -9,6 +9,7 @@
 
 namespace EtdSolutions\Model;
 
+use EtdSolutions\Application\Web;
 use EtdSolutions\Table\Table;
 use Joomla\Language\Text;
 
@@ -96,6 +97,9 @@ abstract class NestedItemModel extends ItemModel {
      */
     public function duplicate($pks) {
 
+        $text = Web::getInstance()
+                   ->getText();
+
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
 
@@ -144,7 +148,7 @@ abstract class NestedItemModel extends ItemModel {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError(Text::_('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
 
                 return false;
             }
@@ -158,6 +162,9 @@ abstract class NestedItemModel extends ItemModel {
     }
 
     public function publish(&$pks, $value = 0) {
+
+        $text = Web::getInstance()
+                   ->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -194,7 +201,7 @@ abstract class NestedItemModel extends ItemModel {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError(Text::_('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
 
                 return false;
             }
@@ -216,6 +223,9 @@ abstract class NestedItemModel extends ItemModel {
      */
     public function delete(&$pks) {
 
+        $text = Web::getInstance()
+                   ->getText();
+
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
 
@@ -231,7 +241,7 @@ abstract class NestedItemModel extends ItemModel {
             // On teste si l'utilisateur peut supprimer cet enregistrement.
             if ($this->allowDelete($pk)) {
                 if (!$table->delete($pk, true, $conds)) {
-                    $this->setError(Text::_('APP_ERROR_MODEL_UNABLE_TO_DELETE_ITEM'));
+                    $this->setError($text->translate('APP_ERROR_MODEL_UNABLE_TO_DELETE_ITEM'));
 
                     return false;
                 }
@@ -241,7 +251,7 @@ abstract class NestedItemModel extends ItemModel {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError(Text::_('APP_ERROR_MODEL_DELETE_NOT_PERMITTED'));
+                $this->setError($text->translate('APP_ERROR_MODEL_DELETE_NOT_PERMITTED'));
 
                 return false;
             }
@@ -291,6 +301,7 @@ abstract class NestedItemModel extends ItemModel {
     public function rebuild() {
 
         $table = $this->getTable();
+
         return $table->rebuild(null, 0, 0, '', $this->getReorderConditions($table));
 
     }
@@ -310,6 +321,5 @@ abstract class NestedItemModel extends ItemModel {
         }
 
     }
-
 
 }

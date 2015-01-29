@@ -110,6 +110,9 @@ abstract class ItemModel extends Model {
      */
     public function getForm($name = null, array $options = array()) {
 
+        $text = Web::getInstance()
+                   ->getText();
+
         if (!isset($name)) {
             $name = $this->getName();
         }
@@ -136,7 +139,7 @@ abstract class ItemModel extends Model {
 
         // On charge les champs depuis le XML.
         if (!$form->loadFile($name)) {
-            throw new \RuntimeException(Text::sprintf('APP_ERROR_FORM_NOT_LOADED', $name), 500);
+            throw new \RuntimeException($text->sprintf('APP_ERROR_FORM_NOT_LOADED', $name), 500);
         }
 
         // On charge les données si nécessaire.
@@ -224,6 +227,9 @@ abstract class ItemModel extends Model {
      */
     public function delete(&$pks) {
 
+        $text = Web::getInstance()
+                   ->getText();
+
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
 
@@ -236,7 +242,7 @@ abstract class ItemModel extends Model {
             // On teste si l'utilisateur peut supprimer cet enregistrement.
             if ($this->allowDelete($pk)) {
                 if (!$table->delete($pk)) {
-                    $this->setError(Text::_('APP_ERROR_MODEL_UNABLE_TO_DELETE_ITEM'));
+                    $this->setError($text->translate('APP_ERROR_MODEL_UNABLE_TO_DELETE_ITEM'));
 
                     return false;
                 }
@@ -246,7 +252,7 @@ abstract class ItemModel extends Model {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError(Text::_('APP_ERROR_MODEL_DELETE_NOT_PERMITTED'));
+                $this->setError($text->translate('APP_ERROR_MODEL_DELETE_NOT_PERMITTED'));
 
                 return false;
             }
@@ -336,6 +342,9 @@ abstract class ItemModel extends Model {
      */
     public function duplicate($pks) {
 
+        $text = Web::getInstance()
+                   ->getText();
+
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
 
@@ -383,7 +392,7 @@ abstract class ItemModel extends Model {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError(Text::_('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
 
                 return false;
             }
@@ -405,6 +414,9 @@ abstract class ItemModel extends Model {
      * @return bool
      */
     public function publish(&$pks, $value = 0) {
+
+        $text = Web::getInstance()
+                   ->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -438,7 +450,7 @@ abstract class ItemModel extends Model {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError(Text::_('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
 
                 return false;
             }

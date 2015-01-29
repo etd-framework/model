@@ -196,11 +196,14 @@ abstract class ItemsModel extends Model {
 
     public function getFilterForm($name = null) {
 
+        $text = Web::getInstance()
+                   ->getText();
+
         if (!isset($name)) {
             $name = $this->getName();
         }
 
-        $app = Web::getInstance();
+        $app  = Web::getInstance();
         $name = "filters_" . strtolower($name);
 
         // On compile un identifiant de cache.
@@ -218,12 +221,12 @@ abstract class ItemsModel extends Model {
 
         // On charge les champs depuis le XML.
         if (!$form->loadFile($name)) {
-            throw new \RuntimeException(Text::sprintf('APP_ERROR_FORM_NOT_LOADED', $name), 500);
+            throw new \RuntimeException($text->sprintf('APP_ERROR_FORM_NOT_LOADED', $name), 500);
         }
 
         // On tente de charger les données depuis la session.
-        $data = array();
-        $data['filter'] = $app->getUserState($this->context.'.filter', array());
+        $data           = array();
+        $data['filter'] = $app->getUserState($this->context . '.filter', array());
 
         // Si on a pas de données, on prérempli quelques options.
         if (!array_key_exists('list', $data['filter'])) {
@@ -320,7 +323,7 @@ abstract class ItemsModel extends Model {
         }
 
         // Limites
-        $limit = $app->getUserStateFromRequest($this->context . '.limit', 'limit', $app->get($this->context.'.list_limit', $app->get('list_limit')), 'uint');
+        $limit = $app->getUserStateFromRequest($this->context . '.limit', 'limit', $app->get($this->context . '.list_limit', $app->get('list_limit')), 'uint');
         $this->set('list.limit', $limit);
 
         // Check if the ordering field is in the white list, otherwise use the incoming value.
