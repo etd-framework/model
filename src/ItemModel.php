@@ -450,7 +450,7 @@ abstract class ItemModel extends Model {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+                $this->setError($text->translate('CTRL_LIST_ERROR_PUBLISH_NOT_PERMITTED'));
 
                 return false;
             }
