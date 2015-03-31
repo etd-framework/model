@@ -9,11 +9,8 @@
 
 namespace EtdSolutions\Model;
 
-use EtdSolutions\Application\Web;
+use EtdSolutions\Language\LanguageFactory;
 use EtdSolutions\Table\Table;
-use Joomla\Language\Text;
-
-defined('_JEXEC') or die;
 
 /**
  * Modèle pour des éléments organisés en arbre.
@@ -97,8 +94,7 @@ abstract class NestedItemModel extends ItemModel {
      */
     public function duplicate($pks) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory)->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -163,8 +159,7 @@ abstract class NestedItemModel extends ItemModel {
 
     public function publish(&$pks, $value = 0) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory)->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -223,8 +218,7 @@ abstract class NestedItemModel extends ItemModel {
      */
     public function delete(&$pks) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory)->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;

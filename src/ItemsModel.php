@@ -9,15 +9,14 @@
 
 namespace EtdSolutions\Model;
 
-use EtdSolutions\Application\Web;
+use EtdSolutions\Language\LanguageFactory;
 use EtdSolutions\Pagination\Pagination;
+use Joomla\Application\AbstractApplication;
+use Joomla\Database\DatabaseDriver;
 use Joomla\Database\DatabaseQuery;
-use Joomla\Filesystem\Path;
-use Joomla\Form\Form;
+use EtdSolutions\Form\Form;
 use Joomla\Form\FormHelper;
-use Joomla\Language\Text;
-
-defined('_JEXEC') or die;
+use Joomla\Registry\Registry;
 
 /**
  * Modèle de base
@@ -64,12 +63,14 @@ abstract class ItemsModel extends Model {
     /**
      * Instancie le modèle.
      *
-     * @param Registry $state          L'état du modèle.
-     * @param bool     $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
+     * @param AbstractApplication $app            L'objet Application.
+     * @param DatabaseDriver      $db             L'objet DatabaseDriver.
+     * @param Registry            $state          L'état du modèle.
+     * @param bool                $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
      */
-    public function __construct(Registry $state = null, $ignore_request = false) {
+    public function __construct(AbstractApplication $app, DatabaseDriver $db, Registry $state = null, $ignore_request = false) {
 
-        parent::__construct($state, $ignore_request);
+        parent::__construct($app, $db, $state, $ignore_request);
 
         // On devine le contexte suivant le nom du modèle.
         if (empty($this->context)) {
@@ -196,14 +197,12 @@ abstract class ItemsModel extends Model {
 
     public function getFilterForm($name = null) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory())->getText();
 
         if (!isset($name)) {
             $name = $this->getName();
         }
 
-        $app  = Web::getInstance();
         $name = "filters_" . strtolower($name);
 
         // On compile un identifiant de cache.
@@ -216,6 +215,7 @@ abstract class ItemsModel extends Model {
         // On instancie le formulaire.
         $form = new Form($name);
         $form->setText($text);
+        $form->setDb($this->db);
 
         // On ajoute le chemin vers les fichiers XML des formulaires.
         FormHelper::addFormPath(JPATH_FORMS);
@@ -227,7 +227,7 @@ abstract class ItemsModel extends Model {
 
         // On tente de charger les données depuis la session.
         $data           = array();
-        $data['filter'] = $app->getUserState($this->context . '.filter', array());
+        $data['filter'] = $this->app->getUserState($this->context . '.filter', array());
 
         // Si on a pas de données, on prérempli quelques options.
         if (!array_key_exists('list', $data['filter'])) {
@@ -314,31 +314,29 @@ abstract class ItemsModel extends Model {
      */
     protected function populateState($ordering = null, $direction = null) {
 
-        $app = Web::getInstance();
-
         // On reçoit et on définit les filtres.
-        if ($filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', array(), 'array')) {
+        if ($filters = $this->app->getUserStateFromRequest($this->context . '.filter', 'filter', array(), 'array')) {
             foreach ($filters as $name => $value) {
                 $this->set('filter.' . $name, $value);
             }
         }
 
         // Limites
-        $limit = $app->getUserStateFromRequest($this->context . '.limit', 'limit', $app->get($this->context . '.list_limit', $app->get('list_limit')), 'uint');
+        $limit = $this->app->getUserStateFromRequest($this->context . '.limit', 'limit', $this->app->get("models.".$this->context . '.list_limit', $this->app->get('list_limit')), 'uint');
         $this->set('list.limit', $limit);
 
         // Check if the ordering field is in the white list, otherwise use the incoming value.
-        $value = $app->getUserStateFromRequest($this->context . '.ordercol', 'list_ordering', $ordering);
+        $value = $this->app->getUserStateFromRequest($this->context . '.ordercol', 'list_ordering', $ordering);
 
         if (!in_array($value, $this->filter_fields)) {
             $value = $ordering;
-            $app->setUserState($this->context . '.ordercol', $value);
+            $this->app->setUserState($this->context . '.ordercol', $value);
         }
 
         $this->set('list.ordering', $value);
 
         // Check if the ordering direction is valid, otherwise use the incoming value.
-        $value = $app->getUserStateFromRequest($this->context . '.orderdirn', 'list_direction', $direction);
+        $value = $this->app->getUserStateFromRequest($this->context . '.orderdirn', 'list_direction', $direction);
 
         if (!in_array(strtoupper($value), array(
             'ASC',
@@ -347,13 +345,13 @@ abstract class ItemsModel extends Model {
         ))
         ) {
             $value = $direction;
-            $app->setUserState($this->context . '.orderdirn', $value);
+            $this->app->setUserState($this->context . '.orderdirn', $value);
         }
 
         $this->set('list.direction', $value);
 
         // Start
-        $value      = $app->getUserStateFromRequest($this->context . '.start', 'start', 0, 'uint');
+        $value      = $this->app->getUserStateFromRequest($this->context . '.start', 'start', 0, 'uint');
         $limitstart = (!empty($limit) ? (floor($value / $limit) * $limit) : 0);
         $this->set('list.start', $limitstart);
 

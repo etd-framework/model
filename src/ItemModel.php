@@ -9,16 +9,13 @@
 
 namespace EtdSolutions\Model;
 
-use EtdSolutions\Application\Web;
 use EtdSolutions\Form\Form;
+use EtdSolutions\Language\LanguageFactory;
 use EtdSolutions\Table\Table;
-use EtdSolutions\User\User;
-use Joomla\Filesystem\Path;
+use Joomla\Application\AbstractApplication;
+use Joomla\Database\DatabaseDriver;
 use Joomla\Form\FormHelper;
-use Joomla\Language\Text;
 use Joomla\Registry\Registry;
-
-defined('_JEXEC') or die;
 
 /**
  * Modèle pour gérer un élément.
@@ -34,26 +31,29 @@ abstract class ItemModel extends Model {
 
     /**
      * Cache interne des données.
-     * Cache interne des données.
      *
      * @var array
      */
     protected $cache = array();
 
     /**
-     * @var array Les Conditions de sélection et de tri des lignes imbriquées.
+     * Les Conditions de sélection et de tri des lignes imbriquées.
+     *
+     * @var array
      */
     protected $reorderConditions = null;
 
     /**
      * Instancie le modèle.
      *
-     * @param Registry $state          L'état du modèle.
-     * @param bool     $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
+     * @param AbstractApplication $app            L'objet Application.
+     * @param DatabaseDriver      $db             L'objet DatabaseDriver.
+     * @param Registry            $state          L'état du modèle.
+     * @param bool                $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
      */
-    public function __construct(Registry $state = null, $ignore_request = false) {
+    public function __construct(AbstractApplication $app, DatabaseDriver $db, Registry $state = null, $ignore_request = false) {
 
-        parent::__construct($state, $ignore_request);
+        parent::__construct($app, $db, $state, $ignore_request);
 
         // On devine le contexte suivant le nom du modèle.
         if (empty($this->context)) {
@@ -87,7 +87,7 @@ abstract class ItemModel extends Model {
         }
 
         // On récupère les données de l'élément.
-        $item = $table->dump(0);
+        $item = $table->dump();
 
         // On transforme le champ params JSON en tableau.
         if (isset($item->params) && is_string($item->params)) {
@@ -110,8 +110,7 @@ abstract class ItemModel extends Model {
      */
     public function getForm($name = null, array $options = array()) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory())->getText();
 
         if (!isset($name)) {
             $name = $this->getName();
@@ -134,6 +133,7 @@ abstract class ItemModel extends Model {
         // On instancie le formulaire.
         $form = new Form($name, $options);
         $form->setText($text);
+        $form->setDb($this->db);
 
         // On ajoute le chemin vers les fichiers XML des formulaires.
         FormHelper::addFormPath(JPATH_FORMS);
@@ -186,13 +186,14 @@ abstract class ItemModel extends Model {
      *
      * @param $name  string Le nom du champ.
      * @param $data  mixed Les données à tester.
+     * @param $group  string Le nom du groupe.
      *
      * @return boolean True si valide, false sinon.
      */
-    public function validateField($name, $data) {
+    public function validateField($name, $data, $group = null ) {
 
         $form = $this->getForm();
-        $ret  = $form->validate($data, null, $name);
+        $ret  = $form->validate($data, $group, $name);
 
         // Si le champ n'est pas valide, on stocke les erreurs dans le modèle.
         if ($ret === false) {
@@ -228,8 +229,7 @@ abstract class ItemModel extends Model {
      */
     public function delete(&$pks) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory())->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -343,8 +343,7 @@ abstract class ItemModel extends Model {
      */
     public function duplicate($pks) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory())->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -416,8 +415,7 @@ abstract class ItemModel extends Model {
      */
     public function publish(&$pks, $value = 0) {
 
-        $text = Web::getInstance()
-                   ->getText();
+        $text = (new LanguageFactory())->getText();
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -531,45 +529,6 @@ abstract class ItemModel extends Model {
     }
 
     /**
-     * Méthode pour contrôler si l'utilisateur peut supprimer un enregistrement.
-     *
-     * @param   array|int $id L'identifiant de l'enregistrement.
-     *
-     * @return  boolean
-     */
-    protected function allowDelete($id = null) {
-
-        return User::getInstance()
-                   ->authorise('delete', strtolower($this->getName()));
-    }
-
-    /**
-     * Méthode pour contrôler si l'utilisateur peut ajouter un enregistrement.
-     *
-     * @param   array|int $id L'identifiant de l'enregistrement.
-     *
-     * @return  boolean
-     */
-    protected function allowAdd() {
-
-        return User::getInstance()
-                   ->authorise('add', strtolower($this->getName()));
-    }
-
-    /**
-     * Méthode pour contrôler si l'utilisateur peut éditer un enregistrement.
-     *
-     * @param   array|int $id L'identifiant de l'enregistrement.
-     *
-     * @return  boolean
-     */
-    protected function allowEdit($id = null) {
-
-        return User::getInstance()
-                   ->authorise('edit', strtolower($this->getName()));
-    }
-
-    /**
      * Méthode pour modifier le formulaire avant la liaison avec les données.
      *
      * @param Form  $form Le formulaire.
@@ -635,10 +594,8 @@ abstract class ItemModel extends Model {
 
     protected function loadFormData($options = array()) {
 
-        $app = Web::getInstance();
-
         // Je tente les charger les données depuis la session.
-        $data = $app->getUserStateFromRequest($this->context . '.edit.data', 'etdform', array(), 'array');
+        $data = $this->app->getUserStateFromRequest($this->context . '.edit.data', 'etdform', array(), 'array');
 
         // Si on a pas de données, on charge celle de l'élément si on a est en édition.
         if (empty($data) && $this->get($this->context . '.id')) {
@@ -654,10 +611,8 @@ abstract class ItemModel extends Model {
      */
     protected function populateState() {
 
-        $app = Web::getInstance();
-
         // Load the object state.
-        $id = $app->input->get('id', 0, 'int');
+        $id = $this->app->input->get('id', 0, 'int');
         $this->set($this->context . '.id', $id);
     }
 

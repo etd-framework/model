@@ -9,17 +9,21 @@
 
 namespace EtdSolutions\Model;
 
-use EtdSolutions\Application\Web;
 use EtdSolutions\Table\Table;
+use Joomla\Application\AbstractApplication;
+use Joomla\Database\DatabaseDriver;
 use Joomla\Model\AbstractDatabaseModel;
 use Joomla\Registry\Registry;
-
-defined('_JEXEC') or die;
 
 /**
  * Modèle de base
  */
-abstract class Model extends AbstractDatabaseModel {
+class Model extends AbstractDatabaseModel {
+
+    /**
+     * @var AbstractApplication L'objet application.
+     */
+    protected $app;
 
     /**
      * Indique si l'état interne du modèle est définit
@@ -27,11 +31,6 @@ abstract class Model extends AbstractDatabaseModel {
      * @var    boolean
      */
     protected $__state_set = null;
-
-    /**
-     * @var  Model  L'instance de l'application.
-     */
-    private static $instance;
 
     protected $name;
 
@@ -43,77 +42,30 @@ abstract class Model extends AbstractDatabaseModel {
     /**
      * Instancie le modèle.
      *
-     * @param Registry $state          L'état du modèle.
-     * @param bool     $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
+     * @param AbstractApplication $app            L'objet Application.
+     * @param DatabaseDriver      $db             L'objet DatabaseDriver.
+     * @param Registry            $state          L'état du modèle.
+     * @param bool                $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
      */
-    public function __construct(Registry $state = null, $ignore_request = false) {
+    public function __construct(AbstractApplication $app, DatabaseDriver $db, Registry $state = null, $ignore_request = false) {
+
+        parent::__construct($db, $state);
+
+        $this->app = $app;
 
         if ($ignore_request) {
             $this->__state_set = true;
         }
-
-        parent::__construct(Web::getInstance()
-                               ->getDb(), $state);
     }
 
     /**
-     * Méthode pour récupérer une instance d'un modèle, la créant si besoin.
-     *
-     * @param   string $name            Le nom du modèle
-     * @param   bool   $ignore_request  Utilisé pour ignorer la mise à jour de l'état depuis l'input.
-     *
-     * @return  Model  L'instance.
-     *
-     * @throws   \RuntimeException
-     */
-    public static function getInstance($name, $ignore_request = false) {
-
-        $name = ucfirst($name);
-        $store = md5($name.":".(int)$ignore_request);
-
-        if (empty(self::$instance[$store])) {
-
-            // On définit la liste des espaces de noms dans laquelle le modèle peut se trouver.
-            $namespaces = array(
-                Web::getInstance()->get('app_namespace'),
-                '\\EtdSolutions'
-            );
-
-            $className = "";
-
-            // On cherche le modèle dans ces espaces de nom.
-            foreach ($namespaces as $namespace) {
-
-                $className = $namespace . '\\Model\\' . $name . 'Model';
-
-                // Si on a trouvé la classe, on arrête.
-                if (class_exists($className)) {
-                    break;
-                }
-
-            }
-            // On vérifie que l'on a bien une classe valide.
-            if (!class_exists($className)) {
-                throw new \RuntimeException("Unable find model " . $name, 500);
-            }
-
-            self::$instance[$store] = new $className(null, $ignore_request);
-        }
-
-
-        return self::$instance[$store];
-    }
-
-    /**
-     * Méthode pour récupérer un objet Table, en le chargeant si nécessaire.
+     * Méthode pour instancier un table.
      *
      * @param   string $name    Le nom du Table. Optionnel.
      *
      * @return  Table  Un objet Table
      *
      * @throws  \RuntimeException
-     *
-     * @note    Proxy vers Table::getInstance().
      */
     public function getTable($name = null) {
 
@@ -121,7 +73,13 @@ abstract class Model extends AbstractDatabaseModel {
             $name = $this->getName();
         }
 
-        return Table::getInstance($name);
+        $class = APP_NAMESPACE . "\\Table\\" . ucfirst($name) . "Table";
+
+        if (!class_exists($class)) {
+            throw new \RuntimeException(sprintf("Unable to find %s table.", $name), 500);
+        }
+
+        return new $class($this->db);
     }
 
     /**
