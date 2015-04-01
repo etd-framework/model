@@ -10,15 +10,20 @@
 namespace EtdSolutions\Model;
 
 use EtdSolutions\Table\Table;
+
 use Joomla\Application\AbstractApplication;
 use Joomla\Database\DatabaseDriver;
+use Joomla\DI\ContainerAwareInterface;
+use Joomla\DI\ContainerAwareTrait;
 use Joomla\Model\AbstractDatabaseModel;
 use Joomla\Registry\Registry;
 
 /**
  * Modèle de base
  */
-class Model extends AbstractDatabaseModel {
+class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
+
+    use ContainerAwareTrait;
 
     /**
      * @var AbstractApplication L'objet application.
