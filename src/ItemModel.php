@@ -240,23 +240,12 @@ abstract class ItemModel extends Model {
         // On supprime tous les éléments.
         foreach ($pks as $i => $pk) {
 
-            // On teste si l'utilisateur peut supprimer cet enregistrement.
-            if ($this->allowDelete($pk)) {
-                if (!$table->delete($pk)) {
-                    $this->setError($text->translate('APP_ERROR_MODEL_UNABLE_TO_DELETE_ITEM'));
-
-                    return false;
-                }
-            } else {
-
-                // On retire la clé primaire fautive.
-                unset($pks[$i]);
-
-                // On retourne une erreur.
-                $this->setError($text->translate('APP_ERROR_MODEL_DELETE_NOT_PERMITTED'));
+            if (!$table->delete($pk)) {
+                $this->setError($text->translate('APP_ERROR_MODEL_UNABLE_TO_DELETE_ITEM'));
 
                 return false;
             }
+
         }
 
         // On nettoie le cache.
@@ -343,8 +332,6 @@ abstract class ItemModel extends Model {
      */
     public function duplicate($pks) {
 
-        $text = (new LanguageFactory())->getText();
-
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
 
@@ -354,48 +341,35 @@ abstract class ItemModel extends Model {
         // On supprime tous les éléments.
         foreach ($pks as $i => $pk) {
 
-            // On teste si l'utilisateur peut modifier cet enregistrement et en ajouter un autre.
-            if ($this->allowEdit($pk) && $this->allowAdd()) {
-
-                // On tente de charger la ligne.
-                if ($table->load($pk) === false) {
-                    $this->setError($table->getError());
-
-                    return false;
-                }
-
-                // On retire la clé primaire pour créer une nouvelle ligne.
-                $table->{$table->getPk()} = null;
-
-                // On change les champs.
-                $this->prepareDuplicatedTable($table);
-
-                // On contrôle les données.
-                if (!$table->check()) {
-                    $this->setError($table->getError());
-
-                    return false;
-                }
-
-                // On stocke les données.
-                if (!$table->store()) {
-                    $this->setError($table->getError());
-
-                    return false;
-                }
-
-                $this->afterDuplicatedTable($table, $pk);
-
-            } else {
-
-                // On retire la clé primaire fautive.
-                unset($pks[$i]);
-
-                // On retourne une erreur.
-                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+            // On tente de charger la ligne.
+            if ($table->load($pk) === false) {
+                $this->setError($table->getError());
 
                 return false;
             }
+
+            // On retire la clé primaire pour créer une nouvelle ligne.
+            $table->{$table->getPk()} = null;
+
+            // On change les champs.
+            $this->prepareDuplicatedTable($table);
+
+            // On contrôle les données.
+            if (!$table->check()) {
+                $this->setError($table->getError());
+
+                return false;
+            }
+
+            // On stocke les données.
+            if (!$table->store()) {
+                $this->setError($table->getError());
+
+                return false;
+            }
+
+            $this->afterDuplicatedTable($table, $pk);
+
         }
 
         // On nettoie le cache.
@@ -413,9 +387,7 @@ abstract class ItemModel extends Model {
      *
      * @return bool
      */
-    public function publish(&$pks, $value = 0) {
-
-        $text = (new LanguageFactory())->getText();
+    public function publish($pks, $value = 0) {
 
         // On s'assure d'avoir un tableau.
         $pks = (array)$pks;
@@ -426,30 +398,16 @@ abstract class ItemModel extends Model {
         // On parcourt tous les éléments.
         foreach ($pks as $i => $pk) {
 
-            // On teste si l'utilisateur peut modifier cet enregistrement.
-            if ($this->allowEdit($pk)) {
+            // On tente de charger la ligne.
+            if ($table->load($pk) === false) {
+                $this->setError($table->getError());
 
-                // On tente de charger la ligne.
-                if ($table->load($pk) === false) {
-                    $this->setError($table->getError());
+                return false;
+            }
 
-                    return false;
-                }
-
-                // On tente de changer l'état de l'enregistrement.
-                if (!$table->publish($pks, $value)) {
-                    $this->setError($table->getError());
-
-                    return false;
-                }
-
-            } else {
-
-                // On retire la clé primaire fautive.
-                unset($pks[$i]);
-
-                // On retourne une erreur.
-                $this->setError($text->translate('CTRL_LIST_ERROR_PUBLISH_NOT_PERMITTED'));
+            // On tente de changer l'état de l'enregistrement.
+            if (!$table->publish($pks, $value)) {
+                $this->setError($table->getError());
 
                 return false;
             }
@@ -485,12 +443,6 @@ abstract class ItemModel extends Model {
             $table->clear();
 
             if ($table->load($pk)) {
-
-                if (!$this->allowEdit($pk)) {
-                    unset($pks[$i]);
-                    $allowed = false;
-                    continue;
-                }
 
                 $where = $this->getReorderConditions($table);
 
