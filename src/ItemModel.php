@@ -134,6 +134,7 @@ abstract class ItemModel extends Model {
         $form = new Form($name, $options);
         $form->setText($text);
         $form->setDb($this->db);
+        $form->setApplication($this->app);
 
         // On ajoute le chemin vers les fichiers XML des formulaires.
         FormHelper::addFormPath(JPATH_FORMS);
