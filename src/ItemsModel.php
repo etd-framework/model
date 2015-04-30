@@ -267,12 +267,13 @@ abstract class ItemsModel extends Model {
      *
      * @return  string  Un identifiant de stockage.
      */
-    protected function  getStoreId($id = '') {
+    protected function getStoreId($id = '') {
 
         $id .= ':' . $this->get('list.start');
         $id .= ':' . $this->get('list.limit');
         $id .= ':' . $this->get('list.ordering');
         $id .= ':' . $this->get('list.direction');
+        $id .= ':' . json_encode($this->get('filter'));
 
         return md5($id);
     }
