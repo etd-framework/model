@@ -113,7 +113,7 @@ abstract class ItemModel extends Model {
         $text = (new LanguageFactory())->getText();
 
         if (!isset($name)) {
-            $name = $this->getName();
+            $name = strtolower($this->getName());
         }
 
         // On met le nom dans les options.
