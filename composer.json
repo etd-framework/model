@@ -24,8 +24,10 @@
     "etdsolutions/application": "@dev",
     "etdsolutions/form": "@dev",
     "etdsolutions/language": "@dev",
-    "etdsolutions/pagination": "@dev",
     "etdsolutions/table": "@dev"
+  },
+  "suggest": {
+    "etdsolutions/pagination": "Pour utiliser la pagination dans les Models"
   },
   "autoload": {
     "psr-4": {
