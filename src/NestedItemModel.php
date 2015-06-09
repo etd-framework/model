@@ -316,4 +316,44 @@ abstract class NestedItemModel extends ItemModel {
 
     }
 
+    /**
+     * Méthode pour contrôler si l'utilisateur peut créer un nouvel enregistrement.
+     *
+     * @return  boolean
+     */
+    protected function allowAdd() {
+
+        $user = $this->getContainer()->get('user')->load();
+
+        return $user->authorise($this->context, 'add');
+    }
+
+    /**
+     * Méthode pour contrôler si l'utilisateur peut modifier un enregistrement.
+     *
+     * @param   array|int $id L'identifiant de l'enregistrement.
+     *
+     * @return  boolean
+     */
+    protected function allowEdit($id = null) {
+
+        $user = $this->getContainer()->get('user')->load();
+
+        return $user->authorise($this->context, 'edit');
+    }
+
+    /**
+     * Méthode pour contrôler si l'utilisateur peut supprimer un enregistrement.
+     *
+     * @param   array|int $id L'identifiant de l'enregistrement.
+     *
+     * @return  boolean
+     */
+    protected function allowDelete($id = null) {
+
+        $user = $this->getContainer()->get('user')->load();
+
+        return $user->authorise($this->context, 'delete');
+    }
+
 }
