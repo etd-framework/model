@@ -143,12 +143,13 @@ class UserModel extends ItemModel {
             }
 
             // On crée les associations dans la base.
-            if (!empty($data['groups'])) {
+            if (!empty($groups)) {
 
                 $tuples = array();
-                foreach ($data['groups'] as $group) {
+                foreach ($groups as $group) {
                     $tuples[] = $id . "," . $group;
                 }
+
                 $this->db->setQuery($this->db->getQuery(true)
                     ->insert('#__user_usergroup_map')
                     ->columns(array(
