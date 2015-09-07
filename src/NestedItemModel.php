@@ -144,7 +144,7 @@ abstract class NestedItemModel extends ItemModel {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+                $this->setError($text->translate('APP_ERROR_CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
 
                 return false;
             }
@@ -196,7 +196,7 @@ abstract class NestedItemModel extends ItemModel {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError($text->translate('CTRL_LIST_ERROR_DUPLICATE_NOT_PERMITTED'));
+                $this->setError($text->translate('APP_ERROR_CTRL_LIST_ERROR_PUBLISH_NOT_PERMITTED'));
 
                 return false;
             }
@@ -245,7 +245,7 @@ abstract class NestedItemModel extends ItemModel {
                 unset($pks[$i]);
 
                 // On retourne une erreur.
-                $this->setError($text->translate('APP_ERROR_MODEL_DELETE_NOT_PERMITTED'));
+                $this->setError($text->translate('APP_ERROR_APP_ERROR_MODEL_DELETE_NOT_PERMITTED'));
 
                 return false;
             }
