@@ -9,6 +9,7 @@
 
 namespace EtdSolutions\Model;
 
+use EtdSolutions\EtdInterfaces\Helper\EmailHelper;
 use EtdSolutions\Table\Table;
 use EtdSolutions\Table\UserTable;
 use EtdSolutions\User\UserHelper;
@@ -181,6 +182,53 @@ class UserModel extends ItemModel {
         }
 
         return $result;
+    }
+
+    public function reset(&$pks) {
+
+        // On retire l'idenfiant de l'utilisateur en cours.
+        $pks = array_diff($pks, array($this->getContainer()->get('user')->id));
+        ArrayHelper::toInteger($pks);
+
+        $table  = $this->getTable();
+        $helper = new EmailHelper($this->app, $this->getContainer());
+        $helper->setEmailTemplate('reset');
+
+        $helper->setData([
+            'subject' => 'Votre compte a été réinitialisé',
+            'resume'  => 'Votre compte sur la plateforme Interfaces a été réinitialisé.',
+            'tags'    => ['password-resets']
+        ]);
+
+        foreach( $pks as $pk ) {
+
+            if ($table->load($pk)) {
+
+                $table->password_clear = $this->helper->genRandomPassword();
+                $table->password       = $this->helper->cryptPassword($table->password_clear);
+                $table->requireReset   = $this->app->get('reset_password.requireReset', false) ? '1' : '0';
+
+                if (!$table->store()) {
+                    $this->setError($table->getError());
+                    return false;
+                }
+
+                $helper->addRecipient($table->email, $table->name);
+                $helper->addMergeVars($table->email, [
+                    'firstname'      => $table->profile->firstName,
+                    'username'       => $table->username,
+                    'password_clear' => $table->password_clear
+                ]);
+
+            }
+
+        }
+
+        // On envoi les emails.
+        $helper->send();
+
+        return true;
+
     }
 
 }
