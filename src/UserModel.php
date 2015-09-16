@@ -81,7 +81,9 @@ class UserModel extends ItemModel {
         parent::beforeTableBinding($table, $data, $isNew);
 
         // On construit le nom complet depuis le prénom et le nom.
-        $data['name'] = $data['profile']['firstName'] . " " . $data['profile']['lastName'];
+        if (isset($data['profile']) && isset($data['profile']['firstName']) && isset($data['profile']['lastName'])) {
+            $data['name'] = $data['profile']['firstName'] ." " . $data['profile']['lastName'];
+        }
 
         // Est-ce un nouvel utilisateur ou non.
         if (empty($table->id)) {
