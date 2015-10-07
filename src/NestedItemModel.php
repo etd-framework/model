@@ -286,6 +286,32 @@ abstract class NestedItemModel extends ItemModel {
     }
 
     /**
+     * Déplace un enregistrement d'une place dans l'arbre suivant la direction.
+     *
+     * @param null $pk
+     * @param int  $direction 1 => vers le haut, -1 => vers le bas
+     */
+    public function order($pk = null, $direction = 1) {
+
+        // On récupère le table.
+        $table = $this->getTable();
+
+        // On récupère les conditions de réordonnencement.
+        $conds = $this->getReorderConditions($table);
+
+        // On enregistre le nouvel ordre.
+        if ($direction == 1) {
+            $table->orderUp($pk, $conds);
+        } elseif ($direction == -1) {
+            $table->orderDown($pk, $conds);
+        }
+
+        // On nettoie le cache.
+        $this->cleanCache();
+
+    }
+
+    /**
      * Méthode pour reconstruire récursivement l'arbre en entier.
      *
      * @return  integer  1 + la valeur de droite de la racine en cas de succès, false en cas d'échec
