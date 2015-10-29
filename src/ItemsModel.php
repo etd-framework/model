@@ -17,6 +17,7 @@ use Joomla\Database\DatabaseQuery;
 use EtdSolutions\Form\Form;
 use Joomla\Form\FormHelper;
 use Joomla\Registry\Registry;
+use Joomla\Utilities\ArrayHelper;
 
 /**
  * Modèle de base
@@ -230,6 +231,10 @@ abstract class ItemsModel extends Model {
         $data           = array();
         $data['filter'] = $this->app->getUserState($this->context . '.filter', array());
 
+        if (is_object($data['filter'])) {
+            $data['filter'] = ArrayHelper::fromObject($data['filter']);
+        }
+
         // Si on a pas de données, on prérempli quelques options.
         if (!array_key_exists('list', $data['filter'])) {
             $data['filter']['list'] = array(
@@ -324,7 +329,7 @@ abstract class ItemsModel extends Model {
         }
 
         // Limites
-        $limit = $this->app->getUserStateFromRequest($this->context . '.limit', 'limit', $this->app->get("models.".$this->context . '.list_limit', $this->app->get('list_limit')), 'uint');
+        $limit = $this->app->getUserStateFromRequest($this->context . '.limit', 'limit', $this->app->get("models." . $this->context . '.list_limit', $this->app->get('list_limit')), 'uint');
         $this->set('list.limit', $limit);
 
         // Check if the ordering field is in the white list, otherwise use the incoming value.
