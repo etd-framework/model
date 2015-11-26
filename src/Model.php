@@ -137,6 +137,20 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
     }
 
     /**
+     * Set the model state.
+     *
+     * @param   Registry  $state  The state object.
+     *
+     * @return  void
+     *
+     * @since   1.0
+     */
+    public function setState(Registry $state) {
+        $this->__state_set = true;
+        parent::setState($state);
+    }
+
+    /**
      * Méthode pour récupérer le nom du modèle.
      *
      * @return  string  Le nom du modèle.
