@@ -184,7 +184,9 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
     }
 
     public function setError($error) {
-        $this->errors[] = $error;
+        if (!empty($error)) {
+            $this->errors[] = $error;
+        }
     }
 
     /**
