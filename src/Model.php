@@ -12,7 +12,7 @@ namespace EtdSolutions\Model;
 use EtdSolutions\Table\Table;
 
 use Joomla\Application\AbstractApplication;
-use Joomla\Database\DatabaseDriver;
+use Joomla\Database\DatabaseInterface;
 use Joomla\DI\ContainerAwareInterface;
 use Joomla\DI\ContainerAwareTrait;
 use Joomla\Model\AbstractDatabaseModel;
@@ -48,11 +48,11 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
      * Instancie le modèle.
      *
      * @param AbstractApplication $app            L'objet Application.
-     * @param DatabaseDriver      $db             L'objet DatabaseDriver.
+     * @param DatabaseInterface   $db             L'objet DatabaseInterface.
      * @param Registry            $state          L'état du modèle.
      * @param bool                $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
      */
-    public function __construct(AbstractApplication $app, DatabaseDriver $db, Registry $state = null, $ignore_request = false) {
+    public function __construct(AbstractApplication $app, DatabaseInterface $db, Registry $state = null, $ignore_request = false) {
 
         parent::__construct($db, $state);
 
