@@ -65,6 +65,12 @@ class UserModel extends ItemModel {
             $id = $this->get($this->context.'.id');
         }
 
+        if (empty($id)) {
+            return [
+                $this->getContainer()->get('config')->get('default_user_groups', 3)
+            ];
+        }
+
         return $this->helper->getGroupsByUser($id);
     }
 
