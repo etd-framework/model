@@ -84,7 +84,13 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
             throw new \RuntimeException(sprintf("Unable to find %s table.", $name), 500);
         }
 
-        return new $class($this->db);
+        $instance = new $class($this->db);
+
+        if (isset($this->container) && in_array("Joomla\\DI\\ContainerAwareInterface", class_implements($instance))) {
+            $instance->setContainer($this->getContainer());
+        }
+
+        return $instance;
     }
 
     /**
