@@ -132,6 +132,7 @@ abstract class ItemModel extends Model {
 
         // On instancie le formulaire.
         $form = new Form($name, $options);
+        $form->setContainer($this->getContainer());
         $form->setText($text);
         $form->setDb($this->db);
         $form->setApplication($this->app);
