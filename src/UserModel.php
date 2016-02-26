@@ -29,6 +29,8 @@ class UserModel extends ItemModel {
      */
     protected $helper;
 
+    protected $bypass_group_check = false;
+
     public function __construct(AbstractApplication $app, DatabaseDriver $db, Registry $state = null, $ignore_request = false) {
 
         parent::__construct($app, $db, $state, $ignore_request);
@@ -131,7 +133,7 @@ class UserModel extends ItemModel {
         $id = (int) $this->get($this->context.'.id');
 
         $user = $this->getContainer()->get('user')->load();
-        if (!$user->authorise('user', 'add')) {
+        if (!$this->bypass_group_check && !$user->authorise('user', 'add')) {
             $data['groups'] = array($this->getContainer()->get('config')->get('default_user_groups', 3));
         }
 
