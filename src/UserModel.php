@@ -183,11 +183,26 @@ class UserModel extends ItemModel {
 
         if ($result && !empty($pks)) {
 
+            $db    = $this->db;
+            $query = $db->getQuery(true);
+
             // On supprime l'utilisateur des groupes.
-            $this->db->setQuery($this->db->getQuery(true)
-                ->delete('#__user_usergroup_map')
-                ->where('user_id IN (' . implode($pks) . ')'))
-                ->execute();
+            $query->delete('#__user_usergroup_map')
+                ->where('user_id IN (' . implode($pks) . ')')
+
+            $db->setQuery($query)->execute();
+
+            $query->clear()
+                  ->delete('#__user_keys')
+                  ->where('user_id IN (' . implode(",", $pks) . ')');
+
+            $db->setQuery($query)->execute();
+
+            $query->clear()
+                  ->delete('#__user_profiles')
+                  ->where('user_id IN (' . implode(",", $pks) . ')');
+
+            $db->setQuery($query)->execute();
 
         }
 
