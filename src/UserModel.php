@@ -229,7 +229,7 @@ class UserModel extends ItemModel {
 
             // On supprime l'utilisateur des groupes.
             $query->delete('#__user_usergroup_map')
-                ->where('user_id IN (' . implode($pks) . ')')
+                ->where('user_id IN (' . implode($pks) . ')');
 
             $db->setQuery($query)->execute();
 
