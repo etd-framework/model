@@ -77,6 +77,47 @@ class UserModel extends ItemModel {
     }
 
     /**
+     * Méthode pour changer l'état d'un enregistrement.
+     *
+     * @param $pks   array Un tableau des clés primaires représentantes des enregistrements à modifier.
+     * @param $value int   La valeur de l'état de publication.
+     *
+     * @return bool
+     */
+    public function block($pks, $value = 1) {
+
+        // On s'assure d'avoir un tableau.
+        $pks = (array)$pks;
+
+        // On récupère le table.
+        $table = $this->getTable();
+
+        // On parcourt tous les éléments.
+        foreach ($pks as $i => $pk) {
+
+            // On tente de charger la ligne.
+            if ($table->load($pk) === false) {
+                $this->setError($table->getError());
+
+                return false;
+            }
+
+            // On tente de changer l'état de l'enregistrement.
+            if (!$table->block($pks, $value)) {
+                $this->setError($table->getError());
+
+                return false;
+            }
+        }
+
+        // On nettoie le cache.
+        $this->cleanCache();
+
+        return true;
+
+    }
+
+    /**
      * Prépare le Table avant de lui lier des données.
      *
      * @param Table $table Une référence à un objet Table.
