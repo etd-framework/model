@@ -75,15 +75,54 @@ abstract class ItemModel extends Model {
 
         if ($id > 0) {
 
-            // On tente de charger la ligne.
-            $return = $table->load($id);
+            $container = $this->getContainer();
+            if ($container->has('cache')) {
 
-            // On contrôle les erreurs.
-            if ($return === false && $table->getError()) {
-                $this->setError($table->getError());
+                $cache   = $container->get('cache');
+                $storeid = $this->getStoreId($id);
 
-                return false;
+                $item = $cache->get($id, $this->context);
+                if (!isset($item)) {
+
+                    // On charge l'élément.
+                    $item = $this->_getItem($id);
+
+                    // On stoke l'élément dans le cache.
+                    $cache->set($item, $storeid, $this->context);
+
+                }
+            } else { // On charge l'élément.
+                $item = $this->_getItem($id);
             }
+
+
+        } else {
+            $item = $table->dump();
+        }
+
+        return $item;
+
+    }
+
+    /**
+     * Méthode pour charger un enregistrement depuis la base de données.
+     *
+     * @param $id
+     *
+     * @return bool|\stdClass
+     */
+    protected function _getItem($id) {
+
+        $table = $this->getTable();
+
+        // On tente de charger la ligne.
+        $return = $table->load($id);
+
+        // On contrôle les erreurs.
+        if ($return === false && $table->getError()) {
+            $this->setError($table->getError());
+
+            return false;
         }
 
         // On récupère les données de l'élément.
@@ -248,10 +287,10 @@ abstract class ItemModel extends Model {
                 return false;
             }
 
-        }
+            // On nettoie le cache.
+            $this->cleanCache($pk);
 
-        // On nettoie le cache.
-        $this->cleanCache();
+        }
 
         return true;
 
@@ -309,9 +348,6 @@ abstract class ItemModel extends Model {
             return false;
         }
 
-        // On nettoie le cache.
-        $this->cleanCache();
-
         // On met à jour l'état du modèle.
         $this->__state_set = true;
 
@@ -320,6 +356,9 @@ abstract class ItemModel extends Model {
             $this->set($this->context . '.id', $table->$pkName);
         }
         $this->set($this->context . '.isNew', $isNew);
+
+        // On nettoie le cache.
+        $this->cleanCache($table->$pkName);
 
         return true;
 
@@ -413,10 +452,10 @@ abstract class ItemModel extends Model {
 
                 return false;
             }
-        }
 
-        // On nettoie le cache.
-        $this->cleanCache();
+            // On nettoie le cache.
+            $this->cleanCache($pk);
+        }
 
         return true;
 
@@ -479,7 +518,22 @@ abstract class ItemModel extends Model {
      * @param null $id Un identifiant de cache optionnel.
      */
     public function cleanCache($id = null) {
-        //@TODO: implémenter le mécanisme de cache.
+
+        $container = $this->getContainer();
+
+        if ($container->has('cache')) {
+            $cache = $container->get('cache');
+
+            // Si on a fourni une clé, on ne supprime que l'élément mis en cache.
+            if (isset($pk)) {
+                return $cache->delete($this->getStoreId($id), 'group');
+            } else { // Sinon, on supprime le groupe entier.
+                return $cache->clean($this->context, 'group');
+            }
+        }
+
+        return true;
+
     }
 
     /**
@@ -606,6 +660,10 @@ abstract class ItemModel extends Model {
         }
 
         return $this->reorderConditions;
+    }
+
+    protected function getStoreId($id = '') {
+        return $id;
     }
 
 }
