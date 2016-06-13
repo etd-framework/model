@@ -603,7 +603,11 @@ abstract class ItemModel extends Model {
     protected function loadFormData($options = array()) {
 
         // Je tente les charger les données depuis la session.
-        $data = $this->app->getUserStateFromRequest($this->context . '.edit.data', 'etdform', null, 'array');
+        if ($this->app instanceof \EtdSolutions\Application\Web) {
+            $data = $this->app->getUserStateFromRequest($this->context . '.edit.data', 'etdform', null, 'array');
+        } else {
+            $data = [];
+        }
 
         // Si on a pas de données, on charge celle de l'élément si on a est en édition.
         if (empty($data) && $this->get($this->context . '.id')) {
