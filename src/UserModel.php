@@ -41,7 +41,7 @@ class UserModel extends ItemModel {
     public function getTable($name = null) {
 
         $table = new UserTable($this->db);
-        $this->setContainer($this->getContainer());
+        $table->setContainer($this->getContainer());
 
         return $table;
     }
