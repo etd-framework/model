@@ -43,7 +43,7 @@ class UserModel extends ItemModel {
         $table = new UserTable($this->db);
         $this->setContainer($this->getContainer());
 
-        return new $table;
+        return $table;
     }
 
     /**
