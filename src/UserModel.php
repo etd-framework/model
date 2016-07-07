@@ -9,7 +9,7 @@
 
 namespace EtdSolutions\Model;
 
-use EtdSolutions\EtdInterfaces\Helper\EmailHelper;
+use EtdSolutions\Email\Email;
 use EtdSolutions\Table\Table;
 use EtdSolutions\Table\UserTable;
 use EtdSolutions\User\UserHelper;
@@ -34,7 +34,7 @@ class UserModel extends ItemModel {
     public function __construct(AbstractApplication $app, DatabaseDriver $db, Registry $state = null, $ignore_request = false) {
 
         parent::__construct($app, $db, $state, $ignore_request);
-        
+
         $this->helper = new UserHelper($db);
     }
 
@@ -255,19 +255,40 @@ class UserModel extends ItemModel {
 
     public function reset(&$pks) {
 
+        $container = $this->getContainer();
+
         // On retire l'idenfiant de l'utilisateur en cours.
-        $pks = array_diff($pks, array($this->getContainer()->get('user')->id));
+        $pks = array_diff($pks, array($container->get('user')->load()->id));
         ArrayHelper::toInteger($pks);
 
         $table  = $this->getTable();
-        $helper = new EmailHelper($this->app, $this->getContainer());
-        $helper->setEmailTemplate('reset');
 
-        $helper->setData([
-            'subject' => 'Votre compte a été réinitialisé',
-            'resume'  => 'Votre compte sur la plateforme Interfaces a été réinitialisé.',
-            'tags'    => ['password-resets']
-        ]);
+        // On ajoute le renderer au container s'il n'existe pas.
+        if (!$container->has('renderer')) {
+
+            $type = $container->get('config')
+                              ->get('template.renderer');
+
+            // On définit le nom de la classe du fournisseur du service Renderer.
+            $class = 'EtdSolutions\\Service\\' . ucfirst($type) . 'RendererProvider';
+
+            // Sanity check
+            if (!class_exists($class)) {
+                throw new \RuntimeException(sprintf('Renderer provider for renderer type %s not found. (class: %s)', $type, $class));
+            }
+
+            // On enregistre notre fournisseur de service.
+            $container->registerServiceProvider(new $class($this->app));
+
+        }
+
+        $email = new Email($container, $container->get('renderer'));
+        $email->setLayout('reset')
+              ->setSubject('Votre compte a été réinitialisé')
+              ->setGlobalData([
+                  'subject' => 'Votre compte a été réinitialisé',
+                  'resume'  => 'Votre compte sur BTWEEN a été réinitialisé.'
+              ]);
 
         foreach( $pks as $pk ) {
 
@@ -282,19 +303,19 @@ class UserModel extends ItemModel {
                     return false;
                 }
 
-                $helper->addRecipient($table->email, $table->name);
-                $helper->addMergeVars($table->email, [
-                    'firstname'      => $table->profile->firstName,
-                    'username'       => $table->username,
-                    'password_clear' => $table->password_clear
-                ]);
+                $email->addRecipient($table->email, $table->name)
+                      ->addRecipientData($table->email, [
+                          'firstname'      => $table->profile->firstName,
+                          'username'       => $table->username,
+                          'password_clear' => $table->password_clear
+                      ]);
 
             }
 
         }
 
         // On envoi les emails.
-        $helper->send();
+        $email->send();
 
         return true;
 
