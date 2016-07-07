@@ -261,6 +261,10 @@ class UserModel extends ItemModel {
         $pks = array_diff($pks, array($container->get('user')->load()->id));
         ArrayHelper::toInteger($pks);
 
+        if (empty($pks)) {
+            return false;
+        }
+
         $table  = $this->getTable();
 
         // On ajoute le renderer au container s'il n'existe pas.
