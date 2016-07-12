@@ -81,7 +81,7 @@ abstract class ItemModel extends Model {
                 $cache   = $container->get('cache');
                 $storeid = $this->getStoreId($id);
 
-                $item = $cache->get($id, $this->context);
+                $item = $cache->get($storeid, $this->context);
                 if (!isset($item)) {
 
                     // On charge l'élément.
@@ -515,7 +515,9 @@ abstract class ItemModel extends Model {
     /**
      * Méthode pour nettoyer le cache.
      *
-     * @param null $id Un identifiant de cache optionnel.
+     * @param string $id Un identifiant de cache optionnel.
+     *
+     * @return bool
      */
     public function cleanCache($id = null) {
 
@@ -525,8 +527,8 @@ abstract class ItemModel extends Model {
             $cache = $container->get('cache');
 
             // Si on a fourni une clé, on ne supprime que l'élément mis en cache.
-            if (isset($pk)) {
-                return $cache->delete($this->getStoreId($id), 'group');
+            if (isset($id)) {
+                return $cache->delete($this->getStoreId($id), $this->context);
             } else { // Sinon, on supprime le groupe entier.
                 return $cache->clean($this->context, 'group');
             }

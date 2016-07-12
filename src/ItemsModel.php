@@ -86,24 +86,35 @@ abstract class ItemsModel extends Model {
      */
     public function getItems() {
 
-        // On récupère la clé de stockage.
-        $store = $this->getStoreId();
-
         // On essaye de charger les données depuis le cache si possible.
-        if (isset($this->cache[$store])) {
-            return $this->cache[$store];
+        $container = $this->getContainer();
+        if ($container->has('cache')) {
+
+            // On récupère le gestionnaire de cache.
+            $cache = $container->get('cache');
+
+            // On récupère la clé de stockage.
+            $storeid = $this->getStoreId();
+
+            $items = $cache->get($storeid, $this->context);
+            if (!isset($items)) {
+
+                // On charge les données.
+                $items = $this->loadItems();
+
+                // On stoke les données dans le cache.
+                $cache->set($items, $storeid, $this->context);
+
+            }
+
+        } else {
+
+            // On charge les éléments.
+            $items = $this->loadItems();
+
         }
 
-        // On charge la liste des éléments.
-        $query = $this->_getListQuery();
-
-        $this->db->setQuery($query, $this->getStart(), $this->get('list.limit'));
-        $items = $this->db->loadObjectList($this->indexBy);
-
-        // Add the items to the internal cache.
-        $this->cache[$store] = $items;
-
-        return $this->cache[$store];
+        return $items;
 
     }
 
@@ -253,6 +264,18 @@ abstract class ItemsModel extends Model {
         $this->cache[$store] = $form;
 
         return $this->cache[$store];
+
+    }
+
+    protected function loadItems() {
+
+        // On charge la liste des éléments.
+        $query = $this->_getListQuery();
+
+        $this->db->setQuery($query, $this->getStart(), $this->get('list.limit'));
+        $items = $this->db->loadObjectList($this->indexBy);
+
+        return $items;
 
     }
 
