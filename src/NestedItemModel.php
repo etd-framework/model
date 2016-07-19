@@ -157,7 +157,7 @@ abstract class NestedItemModel extends ItemModel {
 
     }
 
-    public function publish(&$pks, $value = 0) {
+    public function publish($pks, $value = 0) {
 
         $text = (new LanguageFactory)->getText();
 
