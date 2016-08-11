@@ -37,6 +37,13 @@ abstract class ItemModel extends Model {
     protected $cache = array();
 
     /**
+     * Groupe dans lequel les infos sont stockées en cache.
+     *
+     * @var    string
+     */
+    protected $cachegroup = null;
+
+    /**
      * Les Conditions de sélection et de tri des lignes imbriquées.
      *
      * @var array
@@ -58,6 +65,11 @@ abstract class ItemModel extends Model {
         // On devine le contexte suivant le nom du modèle.
         if (empty($this->context)) {
             $this->context = strtolower($this->getName());
+        }
+
+        // On devine le groupe de cache suivant le nom du modèle.
+        if (empty($this->cachegroup)) {
+            $this->cachegroup = strtolower($this->getName());
         }
     }
 
@@ -528,9 +540,9 @@ abstract class ItemModel extends Model {
 
             // Si on a fourni une clé, on ne supprime que l'élément mis en cache.
             if (isset($id)) {
-                return $cache->delete($this->getStoreId($id), $this->context);
+                return $cache->delete($this->getStoreId($id), $this->cachegroup);
             } else { // Sinon, on supprime le groupe entier.
-                return $cache->clean($this->context, 'group');
+                return $cache->clean($this->cachegroup, 'group');
             }
         }
 

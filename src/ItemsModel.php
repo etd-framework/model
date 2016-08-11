@@ -53,6 +53,13 @@ abstract class ItemsModel extends Model {
     protected $context = null;
 
     /**
+     * Groupe dans lequel les infos sont stockées en cache.
+     *
+     * @var    string
+     */
+    protected $cachegroup = null;
+
+    /**
      * Nom de la colonne avec laquelle on indexe le listing.
      *
      * @var string
@@ -77,6 +84,11 @@ abstract class ItemsModel extends Model {
         if (empty($this->context)) {
             $this->context = strtolower($this->getName());
         }
+
+        // On devine le groupe de cache suivant le nom du modèle.
+        if (empty($this->cachegroup)) {
+            $this->cachegroup = strtolower($this->getName());
+        }
     }
 
     /**
@@ -96,14 +108,14 @@ abstract class ItemsModel extends Model {
             // On récupère la clé de stockage.
             $storeid = $this->getStoreId();
 
-            $items = $cache->get($storeid, $this->context);
+            $items = $cache->get($storeid, $this->cachegroup);
             if (!isset($items)) {
 
                 // On charge les données.
                 $items = $this->loadItems();
 
                 // On stoke les données dans le cache.
-                $cache->set($items, $storeid, $this->context);
+                $cache->set($items, $storeid, $this->cachegroup);
 
             }
 
