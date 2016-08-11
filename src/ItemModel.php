@@ -93,14 +93,14 @@ abstract class ItemModel extends Model {
                 $cache   = $container->get('cache');
                 $storeid = $this->getStoreId($id);
 
-                $item = $cache->get($storeid, $this->context);
+                $item = $cache->get($storeid, $this->getCacheGroup());
                 if (!isset($item)) {
 
                     // On charge l'élément.
                     $item = $this->_getItem($id);
 
                     // On stoke l'élément dans le cache.
-                    $cache->set($item, $storeid, $this->context);
+                    $cache->set($item, $storeid, $this->getCacheGroup());
 
                 }
             } else { // On charge l'élément.
