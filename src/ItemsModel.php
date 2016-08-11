@@ -108,14 +108,14 @@ abstract class ItemsModel extends Model {
             // On récupère la clé de stockage.
             $storeid = $this->getStoreId();
 
-            $items = $cache->get($storeid, $this->cachegroup);
+            $items = $cache->get($storeid, $this->getCacheGroup());
             if (!isset($items)) {
 
                 // On charge les données.
                 $items = $this->loadItems();
 
                 // On stoke les données dans le cache.
-                $cache->set($items, $storeid, $this->cachegroup);
+                $cache->set($items, $storeid, $this->getCacheGroup());
 
             }
 
@@ -398,6 +398,10 @@ abstract class ItemsModel extends Model {
         $limitstart = (!empty($limit) ? (floor($value / $limit) * $limit) : 0);
         $this->set('list.start', $limitstart);
 
+    }
+
+    protected function getCacheGroup() {
+        return $this->cachegroup;
     }
 
 }

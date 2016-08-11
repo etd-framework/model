@@ -540,9 +540,9 @@ abstract class ItemModel extends Model {
 
             // Si on a fourni une clé, on ne supprime que l'élément mis en cache.
             if (isset($id)) {
-                return $cache->delete($this->getStoreId($id), $this->cachegroup);
+                return $cache->delete($this->getStoreId($id), $this->getCacheGroup());
             } else { // Sinon, on supprime le groupe entier.
-                return $cache->clean($this->cachegroup, 'group');
+                return $cache->clean($this->getCacheGroup(), 'group');
             }
         }
 
@@ -678,6 +678,10 @@ abstract class ItemModel extends Model {
 
     protected function getStoreId($id = '') {
         return $id;
+    }
+
+    protected function getCacheGroup() {
+        return $this->cachegroup;
     }
 
 }
