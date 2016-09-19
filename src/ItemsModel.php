@@ -178,7 +178,6 @@ abstract class ItemsModel extends Model {
 		    $query->clear('select')
 			      ->clear('order')
 			      ->clear('limit')
-			      ->clear('offset')
 			      ->select('COUNT(*)');
 
 		    $this->db->setQuery($query);
@@ -188,8 +187,7 @@ abstract class ItemsModel extends Model {
 	    } else { // Sinon on retombe sur une façon inefficace pour compter les éléments.
 
 		    if ($query instanceof DatabaseQuery) {
-			    $query->clear('limit')
-			          ->clear('offset');
+			    $query->clear('limit');
 		    }
 
             $this->db->setQuery($query)
