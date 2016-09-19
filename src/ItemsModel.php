@@ -173,20 +173,27 @@ abstract class ItemsModel extends Model {
         $query = $this->_getListQuery();
 
         // On utilise le rapide COUNT(*) si there no GROUP BY or HAVING clause:
-        if ($query instanceof DatabaseQuery && $query->type == 'select' && $query->group === null && $query->having === null) {
-            $query = clone $query;
-            $query->clear('select')
-                  ->clear('order')
-                  ->select('COUNT(*)');
+	    if ($query instanceof DatabaseQuery && $query->type == 'select' && $query->group === null && $query->union === null && $query->having === null) {
 
-            $this->db->setQuery($query);
-            $total = (int)$this->db->loadResult();
+		    $query->clear('select')
+			      ->clear('order')
+			      ->clear('limit')
+			      ->clear('offset')
+			      ->select('COUNT(*)');
 
-        } else {
+		    $this->db->setQuery($query);
 
-            // Sinon on retombe sur une façon inefficace pour compter les éléments.
-            $this->db->setQuery($query);
-            $this->db->execute();
+		    return (int) $this->db->loadResult();
+
+	    } else { // Sinon on retombe sur une façon inefficace pour compter les éléments.
+
+		    if ($query instanceof DatabaseQuery) {
+			    $query->clear('limit')
+			          ->clear('offset');
+		    }
+
+            $this->db->setQuery($query)
+                     ->execute();
 
             $total = (int)$this->db->getNumRows();
 
