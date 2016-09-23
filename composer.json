@@ -16,7 +16,6 @@
   "require": {
     "php": ">=5.4",
     "joomla/database": "~2.0@dev",
-    "joomla/cache": "~2.0@dev",
     "joomla/di": "~2.0@dev",
     "joomla/filesystem": "~1.0",
     "joomla/form": "~2.0@dev",
@@ -28,7 +27,8 @@
     "etdsolutions/table": "@dev"
   },
   "suggest": {
-    "etdsolutions/pagination": "Pour utiliser la pagination dans les Models"
+    "etdsolutions/pagination": "Pour utiliser la pagination dans les Models",
+    "etdsolutions/cache": "Pour utiliser le cache dans les Models"
   },
   "autoload": {
     "psr-4": {
