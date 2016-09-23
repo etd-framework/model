@@ -125,28 +125,35 @@ abstract class ItemModel extends Model {
      */
     protected function _getItem($id) {
 
-        $table = $this->getTable();
+    	$storeid = md5('_getItem:' . $id);
+	    if (!isset($this->cache[$storeid])) {
 
-        // On tente de charger la ligne.
-        $return = $table->load($id);
+		    $table = $this->getTable();
 
-        // On contrôle les erreurs.
-        if ($return === false && $table->getError()) {
-            $this->setError($table->getError());
+		    // On tente de charger la ligne.
+		    $return = $table->load($id);
 
-            return false;
-        }
+		    // On contrôle les erreurs.
+		    if ($return === false && $table->getError()) {
+			    $this->setError($table->getError());
 
-        // On récupère les données de l'élément.
-        $item = $table->dump();
+			    return false;
+		    }
 
-        // On transforme le champ params JSON en tableau.
-        if (isset($item->params) && is_string($item->params)) {
-            $reg          = new Registry($item->params);
-            $item->params = $reg->toArray();
-        }
+		    // On récupère les données de l'élément.
+		    $item = $table->dump();
 
-        return $item;
+		    // On transforme le champ params JSON en tableau.
+		    if (isset($item->params) && is_string($item->params)) {
+			    $reg          = new Registry($item->params);
+			    $item->params = $reg->toArray();
+		    }
+
+		    $this->cache[$storeid] = $item;
+
+	    }
+
+        return $this->cache[$storeid];
 
     }
 
