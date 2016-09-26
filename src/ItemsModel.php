@@ -170,7 +170,8 @@ abstract class ItemsModel extends Model {
             return $this->cache[$store];
         }
 
-        $query = clone $this->_getListQuery();
+        $q = $this->_getListQuery();
+	    $query = is_object($q) ? clone $q : $q;
 
         // On utilise le rapide COUNT(*) si there no GROUP BY or HAVING clause:
 	    if ($query instanceof DatabaseQuery && $query->type == 'select' && $query->group === null && $query->union === null && $query->having === null) {
