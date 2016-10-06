@@ -148,7 +148,7 @@ class UserModel extends ItemModel {
 
             $table->password_clear = ArrayHelper::getValue($data, 'password', '', 'string');
 
-            $data['password'] = $this->helper->cryptPassword($data['password'], (int) $this->app->get('crypt.algo', PASSWORD_BCRYPT), $this->app->get('crypt.options', null));
+            $data['password'] = $this->helper->cryptPassword($data['password']);
 
             // Set the registration timestamp
             $table->registerDate = (new Date())->format($this->db->getDateFormat());
@@ -159,7 +159,7 @@ class UserModel extends ItemModel {
 
                 $table->password_clear = ArrayHelper::getValue($data, 'password', '', 'string');
 
-                $data['password'] = $this->helper->cryptPassword($data['password'], (int) $this->app->get('crypt.algo', PASSWORD_BCRYPT), $this->app->get('crypt.options', null));
+                $data['password'] = $this->helper->cryptPassword($data['password']);
 
                 // On raz le drapeau de forçage du mot de passe.
                 $data['requireReset'] = 0;
