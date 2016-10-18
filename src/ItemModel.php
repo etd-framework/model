@@ -87,11 +87,12 @@ abstract class ItemModel extends Model {
 
         if ($id > 0) {
 
+            $storeid = $this->getStoreId($id);
+
             $container = $this->getContainer();
             if ($container->has('cache')) {
 
-                $cache   = $container->get('cache');
-                $storeid = $this->getStoreId($id);
+                $cache = $container->get('cache');
 
                 $item = $cache->get($storeid, $this->getCacheGroup());
                 if (!isset($item)) {
@@ -104,7 +105,13 @@ abstract class ItemModel extends Model {
 
                 }
             } else { // On charge l'élément.
-                $item = $this->_getItem($id);
+
+                // On contrôle si l'item est dans le cache interne.
+                if (!isset($this->cache[$storeid])) {
+                    $this->cache[$storeid] = $this->_getItem($id);
+                }
+
+                $item = $this->cache[$storeid];
             }
 
 
