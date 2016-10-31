@@ -30,13 +30,6 @@ abstract class ItemModel extends Model {
     protected $context = null;
 
     /**
-     * Cache interne des données.
-     *
-     * @var array
-     */
-    protected $cache = array();
-
-    /**
      * Groupe dans lequel les infos sont stockées en cache.
      *
      * @var    string
@@ -161,70 +154,6 @@ abstract class ItemModel extends Model {
 	    }
 
         return $this->cache[$storeid];
-
-    }
-
-    /**
-     * Donne le formulaire associé au modèle.
-     *
-     * @param null  $name
-     * @param array $options
-     *
-     * @return Form
-     * @throws \RuntimeException
-     */
-    public function getForm($name = null, array $options = array()) {
-
-        $text = (new LanguageFactory())->getText();
-
-        if (!isset($name)) {
-            $name = strtolower($this->getName());
-        }
-
-        // On met le nom dans les options.
-        $options['name'] = $name;
-
-        // On compile un identifiant de cache.
-        $store = md5("getForm:" . serialize($options));
-
-        if (isset($this->cache[$store])) {
-            return $this->cache[$store];
-        }
-
-        if (!isset($options['control'])) {
-            $options['control'] = 'etdform';
-        }
-
-        // On instancie le formulaire.
-        $form = new Form($name, $options);
-        $form->setContainer($this->getContainer());
-        $form->setText($text);
-        $form->setDb($this->db);
-        $form->setApplication($this->app);
-
-        // On ajoute le chemin vers les fichiers XML des formulaires.
-        FormHelper::addFormPath(JPATH_FORMS);
-
-        // On charge les champs depuis le XML.
-        if (!$form->loadFile($name)) {
-            throw new \RuntimeException($text->sprintf('APP_ERROR_FORM_NOT_LOADED', $name), 500);
-        }
-
-        // On charge les données si nécessaire.
-        $data = $this->loadFormData($options);
-
-        // On modifie le formulaire si besoin.
-        $form = $this->preprocessForm($form, $data);
-
-        // On les lie au formulaire.
-        if (!empty($data)) {
-            $form->bind($data);
-        }
-
-        // On ajoute l'élement au cache.
-        $this->cache[$store] = $form;
-
-        return $this->cache[$store];
 
     }
 
@@ -562,19 +491,6 @@ abstract class ItemModel extends Model {
 
         return true;
 
-    }
-
-    /**
-     * Méthode pour modifier le formulaire avant la liaison avec les données.
-     *
-     * @param Form  $form Le formulaire.
-     * @param array $data Les données liées au formulaire
-     *
-     * @return Form
-     */
-    protected function preprocessForm(Form $form, $data = array()) {
-
-        return $form;
     }
 
     /**

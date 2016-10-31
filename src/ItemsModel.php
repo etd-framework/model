@@ -39,7 +39,7 @@ abstract class ItemsModel extends Model {
     protected $cache = array();
 
     /**
-     * Un cache interne pour la dernière requête utilisée.
+     * Un cache interne pour la dernière requêfte utilisée.
      *
      * @var DatabaseQuery
      */
@@ -227,61 +227,44 @@ abstract class ItemsModel extends Model {
 
     public function getFilterForm($name = null) {
 
-        $text = (new LanguageFactory())->getText();
-
         if (!isset($name)) {
             $name = $this->getName();
         }
 
         $name = "filters_" . strtolower($name);
 
-        // On compile un identifiant de cache.
-        $store = md5("getFilterForm:" . $name);
+        return $this->getForm($name);
 
-        if (isset($this->cache[$store])) {
-            return $this->cache[$store];
+    }
+
+    protected function loadFormData($options = []) {
+
+        // Si on s'occupe des filtres du model.
+        if ($options['name'] == "filters_" . strtolower($this->getName())) {
+
+            // On tente de charger les données depuis la session.
+            $data           = [];
+            $data['filter'] = $this->app->getUserState($this->context . '.filter', array());
+
+            if (is_object($data['filter'])) {
+                $data['filter'] = ArrayHelper::fromObject($data['filter']);
+            }
+
+            // Si on a pas de données, on prérempli quelques options.
+            if (!array_key_exists('list', $data['filter'])) {
+                $data['filter']['list'] = array(
+                    'direction' => $this->get('list.direction'),
+                    'limit'     => $this->get('list.limit'),
+                    'ordering'  => $this->get('list.ordering'),
+                    'start'     => $this->get('list.start')
+                );
+            }
+
+            return $data;
+
         }
 
-        // On instancie le formulaire.
-        $form = new Form($name);
-        $form->setText($text);
-        $form->setDb($this->db);
-        $form->setApplication($this->app);
-        $form->setContainer($this->getContainer());
-
-        // On ajoute le chemin vers les fichiers XML des formulaires.
-        FormHelper::addFormPath(JPATH_FORMS);
-
-        // On charge les champs depuis le XML.
-        if (!$form->loadFile($name)) {
-            throw new \RuntimeException($text->sprintf('APP_ERROR_FORM_NOT_LOADED', $name), 500);
-        }
-
-        // On tente de charger les données depuis la session.
-        $data           = array();
-        $data['filter'] = $this->app->getUserState($this->context . '.filter', array());
-
-        if (is_object($data['filter'])) {
-            $data['filter'] = ArrayHelper::fromObject($data['filter']);
-        }
-
-        // Si on a pas de données, on prérempli quelques options.
-        if (!array_key_exists('list', $data['filter'])) {
-            $data['filter']['list'] = array(
-                'direction' => $this->get('list.direction'),
-                'limit'     => $this->get('list.limit'),
-                'ordering'  => $this->get('list.ordering'),
-                'start'     => $this->get('list.start')
-            );
-        }
-
-        // On les lie au formulaire.
-        $form->bind($data);
-
-        // On ajoute l'élement au cache.
-        $this->cache[$store] = $form;
-
-        return $this->cache[$store];
+        return [];
 
     }
 
