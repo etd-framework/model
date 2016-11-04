@@ -233,7 +233,7 @@ abstract class ItemsModel extends Model {
 
         $name = "filters_" . strtolower($name);
 
-        return $this->getForm($name);
+        return $this->getForm($name, ['control' => '']);
 
     }
 
