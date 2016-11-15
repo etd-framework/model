@@ -111,7 +111,7 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
      * @return Form
      * @throws \RuntimeException
      */
-    public function getForm($name = null, array $options = array()) {
+    public function getForm($name = null, array $options = ["loadFormData" => true]) {
 
         $text = $this->getContainer()
                      ->get('language')
@@ -151,7 +151,9 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
         }
 
         // On charge les données si nécessaire.
-        $data = $this->loadFormData($options);
+        if ($options['loadFormData']) {
+            $data = $this->loadFormData($options);
+        }
 
         // On modifie le formulaire si besoin.
         $form = $this->preprocessForm($form, $data);
