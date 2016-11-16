@@ -225,7 +225,7 @@ abstract class ItemsModel extends Model {
         return $this->cache[$store];
     }
 
-    public function getFilterForm($name = null) {
+    public function getFilterForm($name = null, $options = ['control' => '', 'loadFormData' => true]) {
 
         if (!isset($name)) {
             $name = $this->getName();
@@ -233,7 +233,7 @@ abstract class ItemsModel extends Model {
 
         $name = "filters_" . strtolower($name);
 
-        return $this->getForm($name, ['control' => '']);
+        return $this->getForm($name, $options);
 
     }
 

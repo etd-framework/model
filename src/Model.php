@@ -152,7 +152,7 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
 
         // On charge les données si nécessaire.
         $data = [];
-        if ($options['loadFormData']) {
+        if (isset($options['loadFormData']) && $options['loadFormData']) {
             $data = $this->loadFormData($options);
         }
 
