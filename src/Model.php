@@ -17,15 +17,18 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\DI\ContainerAwareInterface;
 use Joomla\DI\ContainerAwareTrait;
 use Joomla\Form\FormHelper;
-use Joomla\Model\AbstractDatabaseModel;
+use Joomla\Model\DatabaseModelInterface;
+use Joomla\Model\DatabaseModelTrait;
+use Joomla\Model\StatefulModelInterface;
+use Joomla\Model\StatefulModelTrait;
 use Joomla\Registry\Registry;
 
 /**
  * Modèle de base
  */
-class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
+class Model implements DatabaseModelInterface, StatefulModelInterface, ContainerAwareInterface {
 
-    use ContainerAwareTrait;
+    use ContainerAwareTrait, DatabaseModelTrait, StatefulModelTrait;
 
     /**
      * @var AbstractApplication L'objet application.
@@ -62,8 +65,6 @@ class Model extends AbstractDatabaseModel implements ContainerAwareInterface {
      * @param bool                $ignore_request Utilisé pour ignorer la mise à jour de l'état depuis la requête.
      */
     public function __construct(AbstractApplication $app, DatabaseInterface $db, Registry $state = null, $ignore_request = false) {
-
-        parent::__construct($db, $state);
 
         $this->app = $app;
 
