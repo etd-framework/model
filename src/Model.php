@@ -14,21 +14,20 @@ use EtdSolutions\Table\Table;
 
 use Joomla\Application\AbstractApplication;
 use Joomla\Database\DatabaseInterface;
-use Joomla\DI\ContainerAwareInterface;
 use Joomla\DI\ContainerAwareTrait;
 use Joomla\Form\FormHelper;
-use Joomla\Model\DatabaseModelInterface;
 use Joomla\Model\DatabaseModelTrait;
-use Joomla\Model\StatefulModelInterface;
 use Joomla\Model\StatefulModelTrait;
 use Joomla\Registry\Registry;
 
 /**
  * Modèle de base
  */
-class Model implements DatabaseModelInterface, StatefulModelInterface, ContainerAwareInterface {
+class Model implements ModelInterface {
 
-    use ContainerAwareTrait, DatabaseModelTrait, StatefulModelTrait;
+    use ContainerAwareTrait, DatabaseModelTrait, StatefulModelTrait {
+        setState as traitSetState;
+    }
 
     /**
      * @var AbstractApplication L'objet application.
@@ -67,6 +66,8 @@ class Model implements DatabaseModelInterface, StatefulModelInterface, Container
     public function __construct(AbstractApplication $app, DatabaseInterface $db, Registry $state = null, $ignore_request = false) {
 
         $this->app = $app;
+        $this->setDb($db);
+        $this->setState($state ?: new Registry);
 
         if ($ignore_request) {
             $this->__state_set = true;
@@ -258,7 +259,7 @@ class Model implements DatabaseModelInterface, StatefulModelInterface, Container
      */
     public function setState(Registry $state) {
         $this->__state_set = true;
-        parent::setState($state);
+        $this->traitSetState($state);
     }
 
     /**
