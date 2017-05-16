@@ -65,9 +65,9 @@ class Model implements ModelInterface {
      */
     public function __construct(AbstractApplication $app, DatabaseInterface $db, Registry $state = null, $ignore_request = false) {
 
-        $this->app = $app;
+        $this->app   = $app;
+        $this->state = $state ?: new Registry;
         $this->setDb($db);
-        $this->setState($state ?: new Registry);
 
         if ($ignore_request) {
             $this->__state_set = true;
