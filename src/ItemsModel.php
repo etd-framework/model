@@ -302,6 +302,11 @@ abstract class ItemsModel extends Model {
      */
     protected function getStoreId($id = '') {
 
+        return $this->getCacheGroup() . md5($this->_calcStoreId($id));
+    }
+
+    protected function _calcStoreId($id) {
+
         $id = $this->serializeId($id);
         $id .= $this->get('list.start');
         $id .= "|" . $this->get('list.limit');
@@ -309,7 +314,8 @@ abstract class ItemsModel extends Model {
         $id .= "|" . $this->get('list.direction');
         $id .= "|" . $this->serializeId($this->get('filter'));
 
-        return $this->getCacheGroup() . md5($id);
+        return $id;
+
     }
 
     /**
