@@ -302,17 +302,17 @@ abstract class ItemsModel extends Model {
      */
     protected function getStoreId($id = '') {
 
-        return $this->getCacheGroup() . md5($this->_calcStoreId($id));
+        return CacheHelper::getStoreId($this->_calcStoreId($id), $this->getCacheGroup());
     }
 
     protected function _calcStoreId($id) {
 
-        $id = $this->serializeId($id);
+        $id = CacheHelper::serializeId($id);
         $id .= $this->get('list.start');
         $id .= "|" . $this->get('list.limit');
         $id .= "|" . $this->get('list.ordering');
         $id .= "|" . $this->get('list.direction');
-        $id .= "|" . $this->serializeId($this->get('filter'));
+        $id .= "|" . CacheHelper::serializeId($this->get('filter'));
 
         return $id;
 
@@ -399,33 +399,8 @@ abstract class ItemsModel extends Model {
 
     }
 
-    protected function getCacheGroup($suffix = "|") {
-        return $this->cachegroup !== '' ? $this->cachegroup . $suffix : '';
-    }
-
-    protected function serializeId($id) {
-
-        $ret = "";
-
-        if (empty($id)) {
-            return $ret;
-        }
-
-        foreach ((array) $id as $k => $v) {
-            $ret .= "|" . $k . "=";
-            if (is_array($v)) {
-                $ret .= implode(",", $v);
-            } elseif (is_object($v)) {
-                $ret .= implode(",", (array)$v);
-            } elseif (is_null($v)) {
-                $ret .= "null";
-            } elseif (is_bool($v)) {
-                $ret .= ($v ? "true" : "false");
-            } else {
-                $ret .= (string) $v;
-            }
-        }
-        return $ret;
+    protected function getCacheGroup() {
+        return $this->cachegroup;
     }
 
 }

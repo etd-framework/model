@@ -491,7 +491,7 @@ abstract class ItemModel extends Model {
             if (isset($id)) {
                 return $cache->delete($this->getStoreId($id));
             } else { // Sinon, on supprime le groupe entier.
-                return $cache->delete($this->getCacheGroup('*'));
+                return $cache->delete($this->getCacheGroup() . '*');
             }
         }
 
@@ -613,15 +613,15 @@ abstract class ItemModel extends Model {
     }
 
     protected function getStoreId($id = '') {
-        return $this->getCacheGroup() . md5($this->_calcStoreId($id));
+        return CacheHelper::getStoreId($this->_calcStoreId($id), $this->getCacheGroup());
     }
 
     protected function _calcStoreId($id) {
         return $id;
     }
 
-    protected function getCacheGroup($suffix = '|') {
-        return $this->cachegroup !== '' ? $this->cachegroup . $suffix : '';
+    protected function getCacheGroup() {
+        return $this->cachegroup;
     }
 
 }
