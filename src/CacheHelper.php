@@ -11,11 +11,13 @@ namespace EtdSolutions\Model;
 
 class CacheHelper {
 
+    const SEPARATOR = "_";
+
     public static function getStoreId($id = '', $group = null) {
 
         $id = self::serializeId($id);
 
-        return (isset($group) ? $group . "|" : "") . md5($id);
+        return (isset($group) ? $group . self::SEPARATOR : "") . md5($id);
     }
 
     public static function serializeId($id) {
@@ -31,7 +33,7 @@ class CacheHelper {
         }
 
         foreach ((array) $id as $k => $v) {
-            $ret .= "|" . $k . "=";
+            $ret .= self::SEPARATOR . $k . "=";
             if (is_array($v)) {
                 $ret .= implode(",", $v);
             } elseif (is_object($v)) {

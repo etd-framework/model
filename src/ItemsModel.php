@@ -309,10 +309,10 @@ abstract class ItemsModel extends Model {
 
         $id = CacheHelper::serializeId($id);
         $id .= $this->get('list.start');
-        $id .= "|" . $this->get('list.limit');
-        $id .= "|" . $this->get('list.ordering');
-        $id .= "|" . $this->get('list.direction');
-        $id .= "|" . CacheHelper::serializeId($this->get('filter'));
+        $id .= CacheHelper::SEPARATOR . $this->get('list.limit');
+        $id .= CacheHelper::SEPARATOR . $this->get('list.ordering');
+        $id .= CacheHelper::SEPARATOR . $this->get('list.direction');
+        $id .= CacheHelper::SEPARATOR . CacheHelper::serializeId($this->get('filter'));
 
         return $id;
 
