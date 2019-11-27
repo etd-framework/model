@@ -63,6 +63,23 @@ abstract class ItemModel extends Model {
         // On devine le groupe de cache suivant le nom du modèle.
         if (empty($this->cachegroup)) {
             $this->cachegroup = strtolower($this->getName());
+
+            $plural = array(
+                '/(x|ch|ss|sh)$/i'      => "$1es",
+                '/([^aeiouy]|qu)y$/i'   => "$1ies",
+                '/([^aeiouy]|qu)ies$/i' => "$1y",
+                '/(bu)s$/i'             => "$1ses",
+                '/s$/i'                 => "s",
+                '/$/'                   => "s"
+            );
+
+            // On trouve le bon match en utlisant les expressions régulières.
+            foreach ($plural as $k => $v) {
+                if (preg_match($k, $this->cachegroup)) {
+                    $this->cachegroup = preg_replace($k, $v, $this->cachegroup);
+                    break;
+                }
+            }
         }
     }
 
