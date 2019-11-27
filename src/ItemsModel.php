@@ -108,14 +108,17 @@ abstract class ItemsModel extends Model {
             // On récupère la clé de stockage.
             $storeid = $this->getStoreId();
 
-            $items = $cache->get($storeid, $this->getCacheGroup());
-            if (!isset($items)) {
+            if ($cache->has($storeid)) {
+
+                $items = $cache->get($storeid);
+
+            } else {
 
                 // On charge les données.
                 $items = $this->loadItems();
 
                 // On stoke les données dans le cache.
-                $cache->set($items, $storeid, $this->getCacheGroup());
+                $cache->set($storeid, $items);
 
             }
 
@@ -299,13 +302,14 @@ abstract class ItemsModel extends Model {
      */
     protected function getStoreId($id = '') {
 
-        $id .= ':' . $this->get('list.start');
-        $id .= ':' . $this->get('list.limit');
-        $id .= ':' . $this->get('list.ordering');
-        $id .= ':' . $this->get('list.direction');
-        $id .= ':' . json_encode($this->get('filter'));
+        $id = $this->serializeId($id);
+        $id .= $this->get('list.start');
+        $id .= "|" . $this->get('list.limit');
+        $id .= "|" . $this->get('list.ordering');
+        $id .= "|" . $this->get('list.direction');
+        $id .= "|" . $this->serializeId($this->get('filter'));
 
-        return md5($id);
+        return $this->getCacheGroup() . md5($id);
     }
 
     /**
@@ -389,8 +393,31 @@ abstract class ItemsModel extends Model {
 
     }
 
-    protected function getCacheGroup() {
-        return $this->cachegroup;
+    protected function getCacheGroup($suffix = "|") {
+        return $this->cachegroup !== '' ? $this->cachegroup . $suffix : '';
+    }
+
+    protected function serializeId($id) {
+
+        $ret = "";
+
+        if (empty($id)) {
+            return $ret;
+        }
+
+        foreach ((array) $id as $k => $v) {
+            $ret .= "|" . $k . "=";
+            if (is_array($v)) {
+                $ret .= implode(",", $v);
+            } elseif (is_object($v)) {
+                $ret .= implode(",", (array)$v);
+            } elseif (is_null($v)) {
+                $ret .= "null";
+            } elseif (is_bool($v)) {
+                $ret .= $v ? "true" : "false";
+            }
+        }
+        return $ret;
     }
 
 }

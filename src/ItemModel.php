@@ -87,14 +87,20 @@ abstract class ItemModel extends Model {
 
                 $cache = $container->get('cache');
 
-                $item = $cache->get($storeid, $this->getCacheGroup());
+                if ($cache->has($storeid)) {
+
+                    $item = $cache->get($storeid);
+
+                }
+
+                $item = $cache->get($storeid);
                 if (!isset($item)) {
 
                     // On charge l'élément.
                     $item = $this->_getItem($id);
 
                     // On stoke l'élément dans le cache.
-                    $cache->set($item, $storeid, $this->getCacheGroup());
+                    $cache->set($storeid, $item);
 
                 }
             } else { // On charge l'élément.
@@ -483,9 +489,9 @@ abstract class ItemModel extends Model {
 
             // Si on a fourni une clé, on ne supprime que l'élément mis en cache.
             if (isset($id)) {
-                return $cache->delete($this->getStoreId($id), $this->getCacheGroup());
+                return $cache->delete($this->getStoreId($id));
             } else { // Sinon, on supprime le groupe entier.
-                return $cache->clean($this->getCacheGroup(), 'group');
+                return $cache->delete($this->getCacheGroup('*'));
             }
         }
 
@@ -607,11 +613,11 @@ abstract class ItemModel extends Model {
     }
 
     protected function getStoreId($id = '') {
-        return $id;
+        return $this->getCacheGroup() . md5($id);
     }
 
-    protected function getCacheGroup() {
-        return $this->cachegroup;
+    protected function getCacheGroup($suffix = '|') {
+        return $this->cachegroup !== '' ? $this->cachegroup . $suffix : '';
     }
 
 }

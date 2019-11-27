@@ -31,6 +31,8 @@ class UserModel extends ItemModel {
 
     protected $bypass_group_check = false;
 
+    protected $cachegroup = '__users';
+
     public function __construct(AbstractApplication $app, DatabaseDriver $db, Registry $state = null, $ignore_request = false) {
 
         parent::__construct($app, $db, $state, $ignore_request);
@@ -320,32 +322,6 @@ class UserModel extends ItemModel {
 
         // On envoi les emails.
         $email->send();
-
-        return true;
-
-    }
-
-    /**
-     * Méthode pour nettoyer le cache.
-     *
-     * @param string $id Un identifiant de cache optionnel.
-     *
-     * @return bool
-     */
-    public function cleanCache($id = null) {
-
-        $container = $this->getContainer();
-
-        if ($container->has('cache')) {
-            $cache = $container->get('cache');
-
-            // Si on a fourni une clé, on ne supprime que l'élément mis en cache.
-            if (isset($id)) {
-                return $cache->delete($this->getStoreId($id), '__user');
-            } else { // Sinon, on supprime le groupe entier.
-                return $cache->clean('__user', 'group');
-            }
-        }
 
         return true;
 

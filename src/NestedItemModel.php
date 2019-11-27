@@ -69,9 +69,6 @@ abstract class NestedItemModel extends ItemModel {
             return false;
         }
 
-        // On nettoie le cache.
-        $this->cleanCache();
-
         // On met à jour l'état du modèle.
         $this->__state_set = true;
 
@@ -80,6 +77,9 @@ abstract class NestedItemModel extends ItemModel {
             $this->set($this->context . '.id', $table->$pkName);
         }
         $this->set($this->context . '.isNew', $isNew);
+
+        // On nettoie le cache.
+        $this->cleanCache($table->$pkName);
 
         return true;
 
