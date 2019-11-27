@@ -249,7 +249,7 @@ abstract class ItemModel extends Model {
             }
 
             // On nettoie le cache.
-            $this->cleanCache($pk);
+            $this->cleanCache();
 
         }
 
@@ -319,7 +319,7 @@ abstract class ItemModel extends Model {
         $this->set($this->context . '.isNew', $isNew);
 
         // On nettoie le cache.
-        $this->cleanCache($table->$pkName);
+        $this->cleanCache();
 
         return true;
 
@@ -415,7 +415,7 @@ abstract class ItemModel extends Model {
             }
 
             // On nettoie le cache.
-            $this->cleanCache($pk);
+            $this->cleanCache();
         }
 
         return true;
