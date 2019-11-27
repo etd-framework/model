@@ -613,7 +613,11 @@ abstract class ItemModel extends Model {
     }
 
     protected function getStoreId($id = '') {
-        return $this->getCacheGroup() . md5($id);
+        return $this->getCacheGroup() . md5($this->_calcStoreId($id));
+    }
+
+    protected function _calcStoreId($id) {
+        return $id;
     }
 
     protected function getCacheGroup($suffix = '|') {
